@@ -33,4 +33,6 @@ int main (){
 
     cout << "Average: " << avg << endl;
     cout << "Number closest to avg: " << numClosest << endl;
+
+    delete[] arr;
 }
