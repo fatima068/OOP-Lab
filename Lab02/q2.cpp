@@ -23,14 +23,14 @@ int main(){
         cin >> temp;
         size = strlen(temp);
         arr[i] = new char[size + 1];
-        strcpy(arr[i], temp);
+        strcpy(*(arr + i), temp);
     }
 
     //print each string in reverse order 
     for (int i = 0; i < n; i++){
-        size = strlen(arr[i]);
+        size = strlen(*(arr + i));
         for (int j = size-1; j >= 0; j--){
-            cout << arr[i][j];
+            cout << *(*(arr + i) + j);
         }
         cout << endl;
     }
@@ -40,15 +40,15 @@ int main(){
     char maxvowelstr[50];
     for (int i = 0; i < n; i++){
         int tempVowelCount = 0;
-        size = strlen(arr[i]);
+        size = strlen(*(arr + i));
         for (int j = size-1; j >= 0; j--){
-            if (arr[i][j] == 'a' || arr[i][j] == 'e' || arr[i][j] == 'i' || arr[i][j] == 'o' || arr[i][j] == 'u' || arr[i][j] == 'A' || arr[i][j] == 'E' || arr[i][j] == 'I' || arr[i][j] == 'O' || arr[i][j] == 'U'){
+            if (*(*(arr + i) + j) == 'a' || *(*(arr + i) + j) == 'e' || *(*(arr + i) + j) == 'i' || *(*(arr + i) + j) == 'o' || *(*(arr + i) + j) == 'u' || *(*(arr + i) + j) == 'A' || *(*(arr + i) + j) == 'E' || *(*(arr + i) + j) == 'I' || *(*(arr + i) + j) == 'O' || *(*(arr + i) + j) == 'U'){
                 tempVowelCount++;
             }
         }
         if (tempVowelCount > maxvowel){
             maxvowel = tempVowelCount;
-            strcpy(maxvowelstr, arr[i]);
+            strcpy(maxvowelstr, *(arr + i));
         }
     }
     cout << "String: " << maxvowelstr << " vowel count: " << maxvowel;
@@ -57,14 +57,14 @@ int main(){
     int totalLength = 0;
     float avg;
     for (int i = 0; i < n; i++){
-        totalLength += strlen(arr[i]);
+        totalLength += strlen(*(arr + i));
     }
     avg = totalLength / n;
     cout << endl << "Average length of strings: " << avg;
 
     //freeing the memory
     for (int i = 0; i < n; i++) {
-        delete[] arr[i];
+        delete[] *(arr + i);
     }
     delete[] arr;
 }
