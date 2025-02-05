@@ -84,7 +84,8 @@ int main(){
         cout << "1. Add Item to inventory" << endl;
         cout << "2. View All Items with Prices" << endl;
         cout << "3. Generate Receipt" << endl;
-        cout << "4. Exit" << endl;
+        cout << "4. Edit item price" << endl;
+        cout << "5. Exit" << endl;
         cout << "Enter your choice: ";
         cin >> userInput;
 
@@ -127,10 +128,19 @@ int main(){
                 cout << endl << "GRAND TOTAL: " << grandTotal << endl;
                 break;
             case 4:
+                s1.displayAll();
+                cout << endl << "Enter name of item to edit price: ";
+                cin >> item;
+                cout << "Enter new price: " ;
+                cin >> p;
+                s1.editPrice(item, p);
+                break;
+            case 5:
                 cout << "Exiting inventory";
                 break;
             default:
+                cout << "invalid input";
                 break;
         }
-    } while (userInput != 4);
+    } while (userInput != 5);
 }
