@@ -2,145 +2,149 @@
 #include <string>
 using namespace std;
 
-class BankAccount {
-    protected:
-    string accID;
-    double accBalance;
-    string accHolder;
-    string accCategory;
-    string* transactionLog;
-    int logCount;
+class Account {
+protected:
+    string accountNumber;
+    double balance;
+    string accountHolderName;
+    string accountType;
+    string* transactionHistory; 
+    int transactionCount;
 
-    void logTransaction(const string& transaction) {
-        string* newLog = new string[logCount + 1];
-        for (int i = 0; i < logCount; ++i) {
-            newLog[i] = transactionLog[i];
+    void addTransaction(const string& transaction) {
+        string* newTransactionHistory = new string[transactionCount + 1];
+        for (int i = 0; i < transactionCount; ++i) {
+            newTransactionHistory[i] = transactionHistory[i];
         }
-        newLog[logCount] = transaction;
-        logCount++;
-        delete[] transactionLog;
-        transactionLog = newLog;
+        newTransactionHistory[transactionCount] = transaction;
+        transactionCount++;
+        delete[] transactionHistory; 
+        transactionHistory = newTransactionHistory; 
     }
 
-    public:
-    BankAccount(string id, double bal, string holder, string category = "") : accID(id), accBalance(bal), accHolder(holder), accCategory(category), logCount(0), transactionLog(nullptr) {}
+public:
+    Account(string accNumber, double bal, string holderName, string accType = "")
+        : accountNumber(accNumber), balance(bal), accountHolderName(holderName), accountType(accType), transactionCount(0), transactionHistory(nullptr) {}
 
-    void addFunds(double amount) {
+    void deposit(double amount) {
         if (amount > 0) {
-            accBalance += amount;
-            logTransaction("Added funds: " + to_string(amount));
-            cout << amount << " added to account." << endl;
+            balance += amount;
+            addTransaction("Deposited " + to_string(amount));
+            cout << amount << " deposited successfully." << endl;
         } else {
-            cout << "Invalid amount." << endl;
+            cout << "Invalid deposit amount." << endl;
         }
     }
 
-    virtual void removeFunds(double amount) {
-        if (amount > 0 && amount <= accBalance) {
-            accBalance -= amount;
-            logTransaction("Removed funds: " + to_string(amount));
-            cout << amount << " removed from account." << endl;
+    virtual void withdraw(double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+            addTransaction("Withdraw: " + to_string(amount));
+            cout << amount << " withdrawn successfully." << endl;
         } else {
-            cout << "Cannot remove funds. Insufficient balance." << endl;
+            cout << "Insufficient funds" << endl;
         }
     }
 
-    virtual void computeInterest() {}
+    virtual void calculateInterest() {}
 
-    void displayTransactions() const {
-        cout << "Transaction history for Account " << accID << ":" << endl;
-        for (int i = 0; i < logCount; ++i) {
-            cout << transactionLog[i] << endl;
+    void printStatement() const {
+        cout << "Statement for Account " << accountNumber << ":" << endl;
+        for (int i = 0; i < transactionCount; ++i) {
+            cout << transactionHistory[i] << endl;
         }
-        cout << "Remaining Balance: " << accBalance << endl;
+        cout << "Current Balance: " << balance << endl;
     }
 
-    void showAccountDetails() const {
-        cout << "Account ID: " << accID << endl;
-        cout << "Account Holder: " << accHolder << endl;
-        cout << "Account Type: " << (accCategory.empty() ? "General" : accCategory) << endl;
-        cout << "Current Balance: $" << accBalance << endl;
+    void getAccountInfo() const {
+        cout << "Account Number: " << accountNumber << endl;
+        cout << "Account Holder: " << accountHolderName << endl;
+        cout << "Account Type: " << (accountType.empty() ? "Generic" : accountType) << endl;
+        cout << "Current Balance: $" << balance << endl;
     }
 
-    ~BankAccount() {
-        delete[] transactionLog;
+    ~Account() {
+        delete[] transactionHistory; 
     }
 };
 
-class Savings : public BankAccount {
-    private:
-    double rate;
-    double minBalance;
+class SavingsAccount : public Account {
+private:
+    double interestRate;
+    double minimumBalance;
 
-    public:
-    Savings(string id, double bal, string holder, double r, double min) : BankAccount(id, bal, holder, "Savings"), rate(r), minBalance(min) {}
+public:
+    SavingsAccount(string accNumber, double bal, string holderName, double intRate, double minBal)
+        : Account(accNumber, bal, holderName, "Savings"), interestRate(intRate), minimumBalance(minBal) {}
 
-    void computeInterest() override {
-        double interest = accBalance * rate / 100;
-        accBalance += interest;
-        logTransaction("Interest credited: " + to_string(interest));
-        cout << "Interest added: " << interest << endl;
+    void calculateInterest() override {
+        double interest = balance * interestRate / 100;
+        balance += interest;
+        addTransaction("Interest added: " + to_string(interest));
+        cout << "Interest calculated and added: " << interest << endl;
     }
 
-    void removeFunds(double amount) override {
-        if (accBalance - amount >= minBalance) {
-            BankAccount::removeFunds(amount);
+    void withdraw(double amount) override {
+        if (balance - amount >= minimumBalance) {
+            Account::withdraw(amount);
         } else {
-            cout << "Cannot withdraw. Minimum balance must be maintained." << endl;
+            cout << "Withdrawal denied. Minimum balance requirement not met." << endl;
         }
     }
 };
 
-class FixedDeposit : public BankAccount {
-    private:
-    string endDate;
-    double fixedRate;
+class FixedDepositAccount : public Account {
+private:
+    string maturityDate;
+    double fixedInterestRate;
 
-    public:
-    FixedDeposit(string id, double bal, string holder, string date, double rate) : BankAccount(id, bal, holder, "Fixed Deposit"), endDate(date), fixedRate(rate) {}
+public:
+    FixedDepositAccount(string accNumber, double bal, string holderName, string matDate, double fixedIntRate)
+        : Account(accNumber, bal, holderName, "Fixed Deposit"), maturityDate(matDate), fixedInterestRate(fixedIntRate) {}
 
-    void computeInterest() override {
-        double interest = accBalance * fixedRate / 100;
-        accBalance += interest;
-        logTransaction("Fixed interest credited: " + to_string(interest));
-        cout << "Fixed interest added: " << interest << endl;
+    void calculateInterest() override {
+        double interest = balance * fixedInterestRate / 100;
+        balance += interest;
+        addTransaction("Fixed interest added: " + to_string(interest));
+        cout << "Fixed interest calculated and added: " << interest << endl;
     }
 
-    void removeFunds(double amount) override {
-        cout << "Cannot withdraw. Funds are locked until " << endDate << "." << endl;
+    void withdraw(double amount) override {
+        cout << "Withdrawal denied. Fixed Deposit account cannot withdraw before maturity date: " << maturityDate << endl;
     }
 };
 
-class Checking : public BankAccount {
-    public:
-    Checking(string id, double bal, string holder) : BankAccount(id, bal, holder, "Checking") {}
+class CheckingAccount : public Account {
+public:
+    CheckingAccount(string accNumber, double bal, string holderName)
+        : Account(accNumber, bal, holderName, "Checking") {}
 
-    void removeFunds(double amount) override {
-        if (amount > 0 && amount <= accBalance) {
-            accBalance -= amount;
-            logTransaction("Withdrawn: " + to_string(amount));
-            cout << amount << " withdrawn." << endl;
+    void withdraw(double amount) override {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+            addTransaction("Withdraw: " + to_string(amount));
+            cout << amount << " withdrawn successfully." << endl;
         } else {
-            cout << "Insufficient balance." << endl;
+            cout << "Insufficient funds" << endl;
         }
     }
 };
 
 int main() {
-    Savings savingsAcc("SA123", 1000, "ikrash", 5.0, 500);
-    savingsAcc.addFunds(500);
-    savingsAcc.computeInterest();
-    savingsAcc.removeFunds(200);
-    savingsAcc.displayTransactions();
-    cout << endl;
+    SavingsAccount savings("123456", 1000, "Fatima", 5.0, 500);
+    savings.deposit(500);
+    savings.calculateInterest();
+    savings.withdraw(200);
+    savings.printStatement();
+    cout<< endl;
 
-    FixedDeposit fixedAcc("FD456", 5000, "Babar", "2025-12-31", 7.5);
-    fixedAcc.computeInterest();
-    fixedAcc.removeFunds(1000);
-    fixedAcc.displayTransactions();
-    cout << endl;
+    FixedDepositAccount fixedDeposit("654321", 5000, "Percy", "2025-12-31", 7.5);
+    fixedDeposit.calculateInterest();
+    fixedDeposit.withdraw(1000);
+    fixedDeposit.printStatement();
+    cout<< endl;
 
-    Checking checkingAcc("CA789", 2000, "Fakhar");
-    checkingAcc.removeFunds(500);
-    checkingAcc.displayTransactions();
+    CheckingAccount checking("987654", 2000, "Ali Sethi");
+    checking.withdraw(500);
+    checking.printStatement();
 }
